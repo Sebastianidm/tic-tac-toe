@@ -14,14 +14,27 @@ function App() {
         }
         return acc;
       }, []);
-  
+
+      const winnerInfo = calculateWinner(board);
+      if (winnerInfo) {
+        setWinner({ winner: board[winnerInfo.line[0]], line: winnerInfo.line });
+        return;
+      }
+
       const randomIndex = Math.floor(Math.random() * availableMoves.length);
       const machineMove = availableMoves[randomIndex];
-  
+
       const newBoard = board.slice();
       newBoard[machineMove] = xIsNext ? "X" : "O";
-  
+
       setBoard(newBoard);
+
+      const newWinnerInfo = calculateWinner(newBoard);
+      if (newWinnerInfo) {
+        setWinner({ winner: newBoard[machineMove], line: newWinnerInfo.line });
+        return;
+      }
+
       setXIsNext(!xIsNext);
       setIsMachineTurn(false);
     }
@@ -29,11 +42,21 @@ function App() {
 
   const handleClick = (index) => {
     const newBoard = board.slice();
+    
+
     if (calculateWinner(newBoard) || newBoard[index] || isMachineTurn) {
       return;
     }
+
     newBoard[index] = xIsNext ? "X" : "O";
     setBoard(newBoard);
+
+    const winnerInfo = calculateWinner(newBoard);
+    if (winnerInfo) {
+      setWinner({ winner: newBoard[index], line: winnerInfo.line });
+      return;
+    }
+
     setXIsNext(!xIsNext);
     setIsMachineTurn(true);
   };
@@ -83,13 +106,13 @@ function App() {
       </div>
     );
   };
-  
+
   const renderSquare = (index, i, j) => {
-    const isWinnerSquare = winner && winner.line.includes(index);
-  
+    const isWinnerSquare = winner && winner.line && winner.line.includes(index);
+
     return (
       <button
-        key={j} 
+        key={j}
         className={`bg-red-500 border border-yellow-100 text-3xl p-2 sm:p-4 w-16 sm:w-24 h-16 sm:h-24 transition-colors hover:bg-yellow-400 ${
           isWinnerSquare ? "text-white font-bold" : ""
         }`}
@@ -134,7 +157,7 @@ function App() {
             setWinner(null);
           }}
         >
-          Reiniciar Juego
+          Restart Game
         </button>
       </div>
     </div>
